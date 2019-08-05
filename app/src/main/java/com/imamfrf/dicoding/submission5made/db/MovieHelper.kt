@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import java.sql.SQLException
 import android.content.ContentValues
+import android.database.Cursor
 import android.util.Log
 import com.imamfrf.dicoding.submission5made.db.DatabaseContract.MovieColumns.Companion.BACKDROP
 import com.imamfrf.dicoding.submission5made.db.DatabaseContract.MovieColumns.Companion.DESCRIPTION
@@ -13,6 +14,8 @@ import com.imamfrf.dicoding.submission5made.db.DatabaseContract.MovieColumns.Com
 import com.imamfrf.dicoding.submission5made.db.DatabaseContract.MovieColumns.Companion.SCORE
 import com.imamfrf.dicoding.submission5made.db.DatabaseContract.MovieColumns.Companion.TITLE
 import com.imamfrf.dicoding.submission5made.model.Movie
+
+
 
 
 class MovieHelper(context: Context) {
@@ -103,6 +106,28 @@ class MovieHelper(context: Context) {
 
     fun deleteMovie(id: String): Int {
         return database.delete(DatabaseContract().TABLE_MOVIE, "$ID = '$id'", null)
+    }
+
+    fun queryByIdProvider(id: String): Cursor {
+        return database.query(DATABASE_TABLE, null, "$ID = ?", arrayOf(id), null,
+            null, null, null)
+    }
+
+    fun queryProvider(): Cursor {
+        return database.query(DATABASE_TABLE, null, null, null, null,
+            null, "$ID ASC")
+    }
+
+    fun insertProvider(values: ContentValues): Long {
+        return database.insert(DATABASE_TABLE, null, values)
+    }
+
+    fun updateProvider(id: String, values: ContentValues): Int {
+        return database.update(DATABASE_TABLE, values, "$ID = ?", arrayOf(id))
+    }
+
+    fun deleteProvider(id: String): Int {
+        return database.delete(DATABASE_TABLE, "$ID = ?", arrayOf(id))
     }
 
 }

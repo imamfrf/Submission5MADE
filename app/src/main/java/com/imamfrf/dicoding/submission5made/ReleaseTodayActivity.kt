@@ -24,6 +24,8 @@ class ReleaseTodayActivity : AppCompatActivity() {
         mainViewModel.movies.observe(this, getMovies)
         mainViewModel.setMoviesTVShows("movie_today")
 
+        supportActionBar?.title = getString(R.string.today_release)
+
         progressBar_release_today.visibility = View.VISIBLE
 
     }

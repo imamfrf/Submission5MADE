@@ -1,12 +1,16 @@
 package com.imamfrf.dicoding.submission5made.db
 
 import android.provider.BaseColumns
-
-
+import android.database.Cursor
+import android.net.Uri
 
 class DatabaseContract {
     var TABLE_MOVIE = "movie"
     var TABLE_TV_SHOW = "tv_show"
+
+    val AUTHORITY = "com.imamfrf.dicoding.submission5made"
+    private val SCHEME = "content"
+
 
     internal class MovieColumns : BaseColumns {
         companion object {
@@ -18,7 +22,17 @@ class DatabaseContract {
             var POSTER = "poster"
             var BACKDROP = "backdrop"
         }
+
+        val CONTENT_URI = Uri.Builder().scheme(DatabaseContract().SCHEME)
+            .authority(DatabaseContract().AUTHORITY)
+            .appendPath(DatabaseContract().TABLE_MOVIE)
+            .build()
     }
+
+    fun getColumnString(cursor: Cursor, columnName: String): String {
+        return cursor.getString(cursor.getColumnIndex(columnName))
+    }
+
 
     internal class TVShowColumns : BaseColumns {
         companion object {
@@ -29,6 +43,7 @@ class DatabaseContract {
             var DESCRIPTION = "description"
             var POSTER = "poster"
             var BACKDROP = "backdrop"
+
         }
     }
 }

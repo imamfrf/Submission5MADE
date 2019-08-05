@@ -26,7 +26,7 @@ class FavoriteFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val adapter = TabAdapter(activity?.supportFragmentManager as FragmentManager)
-        adapter.addFragment(FavoriteMovieFragment(), getString(R.string.movie))
+        adapter.addFragment(FavoriteMovieFragment2(), getString(R.string.movie))
         adapter.addFragment(FavoriteTVShowFragment(), getString(R.string.tv_show))
 
         view_pager_favorite.adapter = adapter

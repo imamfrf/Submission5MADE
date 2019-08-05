@@ -8,12 +8,11 @@ import android.provider.Settings
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
-import com.google.firebase.messaging.FirebaseMessaging
 
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
-
+    private var alarmReceiver = AlarmReceiver()
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
@@ -29,16 +28,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
         releaseReminderSwitch?.isChecked = sharedPref.checkReleaseReminder() == true
 
         dailyReminderSwitch?.onPreferenceChangeListener =
-            Preference.OnPreferenceChangeListener { preference, newValue ->
+            Preference.OnPreferenceChangeListener { preference, _ ->
                 val dailySwitch = preference as SwitchPreferenceCompat
 
                 if (dailySwitch.isChecked){
                     sharedPref.setDailyReminder(false)
-                    FirebaseMessaging.getInstance().unsubscribeFromTopic("DailyReminder")
+                    alarmReceiver.cancelAlarm(context as Context, AlarmReceiver().TYPE_DAILY)
 
                 } else{
                     sharedPref.setDailyReminder(true)
-                    FirebaseMessaging.getInstance().subscribeToTopic("DailyReminder")
+                    alarmReceiver.setRepeatingAlarm(context as Context, AlarmReceiver().TYPE_DAILY, "07:00",
+                        getString(R.string.daily_notif_message))
 
                 }
                 true
@@ -50,11 +50,13 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
                 if (releaseSwitch.isChecked){
                     sharedPref.setReleaseReminder(false)
-                    FirebaseMessaging.getInstance().unsubscribeFromTopic("ReleaseReminder")
+                    alarmReceiver.cancelAlarm(context as Context, AlarmReceiver().TYPE_RELEASE)
+
 
                 } else{
                     sharedPref.setReleaseReminder(true)
-                    FirebaseMessaging.getInstance().subscribeToTopic("ReleaseReminder")
+                    alarmReceiver.setRepeatingAlarm(context as Context, AlarmReceiver().TYPE_RELEASE, "08:00",
+                        getString(R.string.release_notif_message))
                 }
                 true
             }

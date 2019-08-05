@@ -41,7 +41,7 @@
                 android:layout_height="50dp"
                 app:autoSizeTextType="uniform"
                 android:maxLines="2"
-                android:autoSizeMaxTextSize="36sp"
+                app:autoSizeMaxTextSize="36sp"
                 android:layout_marginStart="16dp"
                 android:textColor="@color/md_white_1000"
                 tools:text="Avengers"

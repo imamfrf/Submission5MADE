@@ -1,4 +1,4 @@
-package com.imamfrf.dicoding.submission5made
+package com.imamfrf.dicoding.submission5made.firebase
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -11,6 +11,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.imamfrf.dicoding.submission5made.MainActivity
+import com.imamfrf.dicoding.submission5made.R
 
 class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onNewToken(s: String?) {

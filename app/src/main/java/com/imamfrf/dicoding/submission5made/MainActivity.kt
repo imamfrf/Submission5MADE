@@ -5,22 +5,20 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.Settings.ACTION_LOCALE_SETTINGS
-import android.util.Log
+
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.SearchView
 import android.widget.Toast
-import com.google.firebase.messaging.FirebaseMessaging
 import com.imamfrf.dicoding.submission5made.favorite.FavoriteFragment
 import com.imamfrf.dicoding.submission5made.home.HomeFragment
 import kotlinx.android.synthetic.main.activity_main.*
-import com.imamfrf.dicoding.submission5made.home.MovieFragment
 
 
 class MainActivity : AppCompatActivity() {
 
     var selectedFragmentName = "home"
+    private val alarmReceiver = AlarmReceiver()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,11 +27,15 @@ class MainActivity : AppCompatActivity() {
 
         val sharedPref = SharedPrefManager(applicationContext).getInstance(applicationContext)
 
+
         if (sharedPref.checkInit() == 0){
             sharedPref.setDailyReminder(true)
             sharedPref.setReleaseReminder(true)
-            FirebaseMessaging.getInstance().subscribeToTopic("DailyReminder")
-            FirebaseMessaging.getInstance().subscribeToTopic("ReleaseReminder")
+            alarmReceiver.setRepeatingAlarm(applicationContext, AlarmReceiver().TYPE_DAILY, "07:00",
+                getString(R.string.daily_notif_message))
+            alarmReceiver.setRepeatingAlarm(applicationContext, AlarmReceiver().TYPE_RELEASE, "08:00",
+                getString(R.string.release_notif_message))
+
         }
         if (intent.extras != null) {
             val type = intent.getStringExtra("type")
@@ -115,7 +117,6 @@ class MainActivity : AppCompatActivity() {
     override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
         super.onRestoreInstanceState(savedInstanceState)
         selectedFragmentName = savedInstanceState?.getString("selectedFragmentName").toString()
-        Log.d("TES123", "selected = "+selectedFragmentName)
 
         if (selectedFragmentName == "home"){
             loadFragment(HomeFragment())
