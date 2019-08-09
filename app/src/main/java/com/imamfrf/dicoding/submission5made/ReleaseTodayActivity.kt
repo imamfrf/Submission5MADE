@@ -12,44 +12,39 @@ import com.imamfrf.dicoding.submission5made.model.Movie
 import kotlinx.android.synthetic.main.activity_release_today.*
 
 class ReleaseTodayActivity : AppCompatActivity() {
-    private lateinit var mainViewModel: MainViewModel
-    private lateinit var mAdapter: MovieAdapter
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_release_today)
 
-        mainViewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
-        mainViewModel.movies.observe(this, getMovies)
-        mainViewModel.setMoviesTVShows("movie_today")
-
         supportActionBar?.title = getString(R.string.today_release)
 
         progressBar_release_today.visibility = View.VISIBLE
 
+        if (intent.getSerializableExtra("movieList") != null) {
+            showMovies()
+        }
+
+
     }
 
-    private val getMovies =
-        Observer<ArrayList<Movie>> { movies ->
-            if (movies != null) {
-                mAdapter = MovieAdapter(movies, applicationContext,  object : MovieAdapter.OnItemClicked {
-                    override fun onItemClick(position: Int){
-                        val intent = Intent(applicationContext, DetailActivity::class.java)
-                        intent.putExtra(DetailActivity().EXTRA_MOVIE_ID, movies[position].id)
-                        intent.putExtra(DetailActivity().EXTRA_TYPE, "movie")
-                        startActivity(intent)
-                    }
-                })
-
-                recyclerV_release_today.apply {
-                    adapter = mAdapter
-
-                    layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+    fun showMovies() {
+        val movies = intent.getSerializableExtra("movieList") as ArrayList<Movie>
+        recyclerV_release_today.apply {
+            adapter = MovieAdapter(movies, applicationContext, object : MovieAdapter.OnItemClicked {
+                override fun onItemClick(position: Int) {
+                    val intent = Intent(applicationContext, DetailActivity::class.java)
+                    intent.putExtra(DetailActivity().EXTRA_MOVIE_ID, movies[position].id)
+                    intent.putExtra(DetailActivity().EXTRA_TYPE, "movie")
+                    startActivity(intent)
                 }
+            })
 
-                progressBar_release_today.visibility = View.GONE
-
-            }
+            layoutManager = LinearLayoutManager(applicationContext, RecyclerView.VERTICAL, false)
         }
+        progressBar_release_today.visibility = View.GONE
+
+    }
+
+
 }

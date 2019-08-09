@@ -19,6 +19,8 @@ android {
         buildConfigField("String", "URL_SEARCH", '"https://api.themoviedb.org/3/search"')
         buildConfigField("String", "URL_DETAIL_MOVIE", '"https://api.themoviedb.org/3/movie"')
         buildConfigField("String", "URL_DETAIL_TV_SHOW", '"https://api.themoviedb.org/3/tv"')
+        buildConfigField("String", "URL_TODAY_RELEASE_MOVIE", '"https://api.themoviedb.org/3/discover/movie"')
+
     }
     buildTypes {
         release {

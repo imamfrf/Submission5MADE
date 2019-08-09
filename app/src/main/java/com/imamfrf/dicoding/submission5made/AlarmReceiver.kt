@@ -11,11 +11,18 @@ import android.media.RingtoneManager
 import androidx.core.app.NotificationCompat
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.util.Log
+import com.imamfrf.dicoding.submission5made.model.Movie
+import com.imamfrf.dicoding.submission5made.model.TVShow
+import com.loopj.android.http.AsyncHttpClient
+import com.loopj.android.http.AsyncHttpResponseHandler
+import com.loopj.android.http.RequestParams
+import cz.msebera.android.httpclient.Header
+import org.json.JSONObject
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
-
-
+import kotlin.collections.ArrayList
 
 
 class AlarmReceiver : BroadcastReceiver() {
@@ -28,17 +35,73 @@ class AlarmReceiver : BroadcastReceiver() {
     private val ID_DAILY = 101
     private val ID_RELEASE = 101
 
-    private val DATE_FORMAT = "yyyy-MM-dd"
     private val TIME_FORMAT = "HH:mm"
 
-    override fun onReceive(context: Context?, intent: Intent?) {
-        val type = intent?.getStringExtra(EXTRA_TYPE)
-        val message = intent?.getStringExtra(EXTRA_MESSAGE)
-        val title = if (type.equals(TYPE_DAILY, ignoreCase = true)) TYPE_DAILY else TYPE_RELEASE
-        val notifId = if (type.equals(TYPE_DAILY, ignoreCase = true)) ID_DAILY else ID_RELEASE
+    lateinit var title: String
+    lateinit var message: String
+    lateinit var type: String
+    var notifId = 0
 
-        showAlarmNotification(context as Context, title, message as String, notifId, type as String)
+    override fun onReceive(context: Context?, intent: Intent?) {
+        type = intent?.getStringExtra(EXTRA_TYPE) as String
+        message = intent.getStringExtra(EXTRA_MESSAGE) as String
+        title = if (type.equals(TYPE_DAILY, ignoreCase = true)) TYPE_DAILY else TYPE_RELEASE
+        notifId = if (type.equals(TYPE_DAILY, ignoreCase = true)) ID_DAILY else ID_RELEASE
+
+        if (type == TYPE_RELEASE){
+            getReleaseTodayMovies(context)
+        }
+        else if (type == TYPE_DAILY){
+            showAlarmNotification(context as Context, title, message, notifId, type, arrayListOf())
+        }
         Toast.makeText(context, "$title : $message", Toast.LENGTH_LONG).show()
+    }
+
+    fun getReleaseTodayMovies(context: Context?){
+        val listItemsMovie = ArrayList<Movie>()
+        val todayDate = Date()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+
+        val params = RequestParams()
+        params.put("api_key", BuildConfig.TMDB_API_KEY)
+        params.put("language", "en-US")
+        params.put("primary_release_date.gte", dateFormat.format(todayDate))
+        params.put("primary_release_date.lte", dateFormat.format(todayDate))
+
+
+        val client = AsyncHttpClient()
+
+
+        val url = BuildConfig.URL_TODAY_RELEASE_MOVIE
+
+        client.get(url, params, object : AsyncHttpResponseHandler() {
+
+            override fun onSuccess(statusCode: Int, headers: Array<Header>, responseBody: ByteArray) {
+                try {
+                    val result = String(responseBody)
+                    val responseObject = JSONObject(result)
+                    val list = responseObject.getJSONArray("results")
+
+                    for (i in 0 until list.length()) {
+                        val movie = list.getJSONObject(i)
+                        val movieItem = Movie(movie)
+                        listItemsMovie.add(movieItem)
+                    }
+
+                    if (listItemsMovie.size > 0){
+                        showAlarmNotification(context as Context, title, message, notifId, type, listItemsMovie)
+                    }
+
+                } catch (e: Exception) {
+                    Log.d("Exception", e.message)
+                }
+
+            }
+
+            override fun onFailure(statusCode: Int, headers: Array<Header>, responseBody: ByteArray, error: Throwable) {
+                Log.d("onFailure", error.message)
+            }
+        })
     }
 
     fun setRepeatingAlarm(context: Context, type: String, time: String, message: String) {
@@ -63,13 +126,19 @@ class AlarmReceiver : BroadcastReceiver() {
         Toast.makeText(context, context.getString(R.string.toast_reminder_enabled, type), Toast.LENGTH_SHORT).show()
     }
 
-    private fun showAlarmNotification(context: Context, title: String, message: String, notifId: Int, type: String) {
+    private fun showAlarmNotification(context: Context, title: String, message: String, notifId: Int, type: String,
+                                      movieList: ArrayList<Movie>) {
         val CHANNEL_ID = context.getString(R.string.default_notification_channel_id)
         val CHANNEL_NAME = context.getString(R.string.default_notification_channel_name)
 
         val intent = Intent(context, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         intent.putExtra("type", type)
+
+        if (type == TYPE_RELEASE){
+            intent.putExtra("movieList", movieList)
+            Log.d("tes123", "movieList show = $movieList")
+        }
 
         val pendingIntent = PendingIntent.getActivity(
             context, 0, intent,

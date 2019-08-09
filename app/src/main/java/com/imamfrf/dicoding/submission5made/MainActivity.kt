@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 
 import android.view.Menu
 import android.view.MenuItem
@@ -40,7 +41,11 @@ class MainActivity : AppCompatActivity() {
         if (intent.extras != null) {
             val type = intent.getStringExtra("type")
             if (type == "release"){
-                startActivity(Intent(applicationContext, ReleaseTodayActivity::class.java))
+                val intent = Intent(applicationContext, ReleaseTodayActivity::class.java)
+                intent.putExtra("movieList", this.intent.getSerializableExtra("movieList"))
+                Log.d("tes123", "movieList main = ${this.intent.getSerializableExtra("movieList")}")
+
+                startActivity(intent)
             }
         }
         loadFragment(HomeFragment())

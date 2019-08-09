@@ -33,25 +33,11 @@ class MainViewModel : ViewModel() {
         params.put("api_key", BuildConfig.TMDB_API_KEY)
         params.put("language", "en-US")
 
-        if (type == "movie_today"){
-            val todayDate = Date()
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd")
-            params.put("primary_release_date.gte", dateFormat.format(todayDate))
-            params.put("primary_release_date.lte", dateFormat.format(todayDate))
-
-            Log.d("TES123", dateFormat.format(todayDate))
-        }
-
         val client = AsyncHttpClient()
 
 
-        var url = if (type == "movie_today"){
-            BuildConfig.URL_DISCOVER+"/movie"
+        var url =  BuildConfig.URL_DISCOVER+"/$type"
 
-        } else{
-            BuildConfig.URL_DISCOVER+"/$type"
-
-        }
         client.get(url, params, object : AsyncHttpResponseHandler() {
 
             override fun onSuccess(statusCode: Int, headers: Array<Header>, responseBody: ByteArray) {
@@ -60,7 +46,7 @@ class MainViewModel : ViewModel() {
                     val responseObject = JSONObject(result)
                     val list = responseObject.getJSONArray("results")
                     for (i in 0 until list.length()) {
-                        if (type == "movie" || type == "movie_today"){
+                        if (type == "movie"){
                             val movie = list.getJSONObject(i)
                             val movieItems = Movie(movie)
                             listItemsMovie.add(movieItems)
